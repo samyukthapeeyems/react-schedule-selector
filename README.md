@@ -5,37 +5,37 @@
 A modified version of mobile-friendly when2meet-style grid-based schedule selector built with [styled components](https://github.com/styled-components/styled-components) and [date-fns](https://date-fns.org/). It contains feature to disable time slots.
 
 
-![image](https://ibb.co/5G5L0CW)
+![image](https://i.ibb.co/wBK4k8N/Screenshot-from-2024-07-24-16-19-43.png)
 
 ## Getting Started
 
 ```
-yarn add react-schedule-selector styled-components
+pnpm install react-timeslot-selector styled-components
 ```
 
 ```js
-import ScheduleSelector from 'react-schedule-selector'
+import ScheduleSelector from 'react-timeslot-selector'
+import {useState} from 'react'
 
-class App extends React.Component {
-  state = { schedule = [] }
+export default function App () {
+  const [schedule, setSchedule] = useState([]);
 
-  handleChange = newSchedule => {
-    this.setState({ schedule: newSchedule })
+  const handleChange = newSchedule => {
+    setSchedule(newSchedule);
   }
 
-  render() {
     return (
       <ScheduleSelector
-        selection={this.state.schedule}
+        selection={schedule}
         numDays={5}
         minTime={8}
         maxTime={22}
         hourlyChunks={2}
-        onChange={this.handleChange}
+        onChange={handleChange}
         disabledSlots={[]}
       />
     )
-  }
+  
 }
 ```
 
