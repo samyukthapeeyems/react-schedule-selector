@@ -82,9 +82,11 @@ type PropsType = {
   unselectedColor: string
   selectedColor: string
   hoveredColor: string
+  disabledColor: string
   renderDateCell?: (datetime: Date, selected: boolean, refSetter: (dateCellElement: HTMLElement) => void) => JSX.Element
   renderTimeLabel?: (time: Date) => JSX.Element
   renderDateLabel?: (date: Date) => JSX.Element
+  disabledSlots?: Array<Date> // New prop
 }
 
 type StateType = {
@@ -128,8 +130,11 @@ export default class ScheduleSelector extends React.Component<PropsType, StateTy
     selectedColor: colors.blue,
     unselectedColor: colors.paleBlue,
     hoveredColor: colors.lightBlue,
-    onChange: () => {}
+    disabledColor: colors.grey,
+    onChange: () => {},
+    disabledSlots: [] // Default empty array
   }
+  
 
   static getDerivedStateFromProps(props: PropsType, state: StateType): Partial<StateType> | null {
     // As long as the user isn't in the process of selecting, allow prop changes to re-populate selection state
@@ -236,9 +241,9 @@ export default class ScheduleSelector extends React.Component<PropsType, StateTy
   // Given an ending Date, determines all the dates that should be selected in this draft
   updateAvailabilityDraft(selectionEnd: Date | null, callback?: () => void) {
     const { selectionType, selectionStart } = this.state
-
+  
     if (selectionType === null || selectionStart === null) return
-
+  
     let newSelection: Array<Date> = []
     if (selectionStart && selectionEnd && selectionType) {
       newSelection = this.selectionSchemeHandlers[this.props.selectionScheme](
@@ -247,21 +252,29 @@ export default class ScheduleSelector extends React.Component<PropsType, StateTy
         this.state.dates
       )
     }
-
+  
+    // Filter out disabled slots from newSelection
+    newSelection = newSelection.filter(date => !this.isDisabledSlot(date))
+  
     let nextDraft = [...this.props.selection]
     if (selectionType === 'add') {
       nextDraft = Array.from(new Set([...nextDraft, ...newSelection]))
     } else if (selectionType === 'remove') {
       nextDraft = nextDraft.filter(a => !newSelection.find(b => isSameMinute(a, b)))
     }
-
+  
     this.setState({ selectionDraft: nextDraft }, callback)
   }
+  
+  isDisabledSlot(date: Date): boolean {
+    if(this.props.disabledSlots)
+      return this.props.disabledSlots.some(disabledSlot => isSameMinute(disabledSlot, date));
+    return false;
+  }
 
-  // Isomorphic (mouse and touch) handler since starting a selection works the same way for both classes of user input
   handleSelectionStartEvent(startTime: Date) {
-    // Check if the startTime cell is selected/unselected to determine if this drag-select should
-    // add values or remove values
+    if (this.isDisabledSlot(startTime)) return
+  
     const timeSelected = this.props.selection.find(a => isSameMinute(a, startTime))
     this.setState({
       selectionType: timeSelected ? 'remove' : 'add',
@@ -305,11 +318,13 @@ export default class ScheduleSelector extends React.Component<PropsType, StateTy
 
   renderDateCellWrapper = (time: Date): JSX.Element => {
     const startHandler = () => {
-      this.handleSelectionStartEvent(time)
+      if (!this.isDisabledSlot(time)) {
+        this.handleSelectionStartEvent(time)
+      }
     }
-
+  
     const selected = Boolean(this.state.selectionDraft.find(a => isSameMinute(a, time)))
-
+  
     return (
       <GridCell
         className="rgdp__grid-cell"
@@ -318,15 +333,16 @@ export default class ScheduleSelector extends React.Component<PropsType, StateTy
         // Mouse handlers
         onMouseDown={startHandler}
         onMouseEnter={() => {
-          this.handleMouseEnterEvent(time)
+          if (!this.isDisabledSlot(time)) {
+            this.handleMouseEnterEvent(time)
+          }
         }}
         onMouseUp={() => {
-          this.handleMouseUpEvent(time)
+          if (!this.isDisabledSlot(time)) {
+            this.handleMouseUpEvent(time)
+          }
         }}
         // Touch handlers
-        // Since touch events fire on the event where the touch-drag started, there's no point in passing
-        // in the time parameter, instead these handlers will do their job using the default Event
-        // parameters
         onTouchStart={startHandler}
         onTouchMove={this.handleTouchMoveEvent}
         onTouchEnd={this.handleTouchEndEvent}
@@ -342,6 +358,7 @@ export default class ScheduleSelector extends React.Component<PropsType, StateTy
         this.cellToDate.set(dateCell, time)
       }
     }
+    const isDisabled = this.isDisabledSlot(time)
     if (this.props.renderDateCell) {
       return this.props.renderDateCell(time, selected, refSetter)
     } else {
@@ -350,12 +367,13 @@ export default class ScheduleSelector extends React.Component<PropsType, StateTy
           selected={selected}
           ref={refSetter}
           selectedColor={this.props.selectedColor}
-          unselectedColor={this.props.unselectedColor}
-          hoveredColor={this.props.hoveredColor}
+          unselectedColor={isDisabled ? this.props.disabledColor : this.props.unselectedColor} // Gray out disabled slots
+          hoveredColor={isDisabled ? this.props.disabledColor : this.props.hoveredColor}
         />
       )
     }
   }
+  
 
   renderTimeLabel = (time: Date): JSX.Element => {
     if (this.props.renderTimeLabel) {

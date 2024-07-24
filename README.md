@@ -2,11 +2,10 @@
 
 [![npm version](https://badge.fury.io/js/react-schedule-selector.svg)](https://badge.fury.io/js/react-schedule-selector) [![Build Status](https://travis-ci.com/bibekg/react-schedule-selector.svg?branch=master)](https://travis-ci.com/bibekg/react-schedule-selector) [![Coverage Status](https://coveralls.io/repos/github/bibekg/react-schedule-selector/badge.svg?branch=master)](https://coveralls.io/github/bibekg/react-schedule-selector?branch=master)
 
-A mobile-friendly when2meet-style grid-based schedule selector built with [styled components](https://github.com/styled-components/styled-components) and [date-fns](https://date-fns.org/).
+A modified version of mobile-friendly when2meet-style grid-based schedule selector built with [styled components](https://github.com/styled-components/styled-components) and [date-fns](https://date-fns.org/). It contains feature to disable time slots.
 
-[Live example](http://react-schedule-selector.surge.sh/)
 
-![image](https://image.ibb.co/jDKJBT/react_grid_date_picker.png)
+![image](https://ibb.co/5G5L0CW)
 
 ## Getting Started
 
@@ -33,6 +32,7 @@ class App extends React.Component {
         maxTime={22}
         hourlyChunks={2}
         onChange={this.handleChange}
+        disabledSlots={[]}
       />
     )
   }
@@ -57,6 +57,14 @@ To customize the UI, you can either:
 **description**: List of dates that should be filled in on the grid (reflect the start time of each cell).
 
 **required**: yes
+
+#### `disabledSlots`
+
+**type**: `Array<Date>`
+
+**description**: List of disabled dates in the grid, these dates cannot be selected.
+
+**required**: no
 
 #### `selectionScheme`
 
@@ -205,6 +213,16 @@ To customize the UI, you can either:
 **required**: no
 
 **default value**: `'#dbedff'`
+
+#### `disabledColor`
+
+**type**: `string`
+
+**description**: The color of a disabled cell
+
+**required**: no
+
+**default value**: `'rgba(79, 79, 79, 0.87)'`
 
 #### `renderDateCell`
 
