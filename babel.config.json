@@ -1,9 +1,9 @@
 {
   "presets": [
-    "@babel/react",
-    "@babel/typescript",
+    "@babel/preset-react",
+    "@babel/preset-typescript",
     [
-      "@babel/env",
+      "@babel/preset-env",
       {
         "targets": {
           "edge": "17",
@@ -12,12 +12,12 @@
           "safari": "11.1"
         },
         "useBuiltIns": "usage",
-        "corejs": "3.6.5"
+        "corejs": 3
       }
     ]
   ],
   "plugins": [
-    "transform-class-properties",
+    "@babel/plugin-proposal-class-properties",
     "@babel/plugin-proposal-object-rest-spread",
     "@babel/plugin-proposal-nullish-coalescing-operator",
     [

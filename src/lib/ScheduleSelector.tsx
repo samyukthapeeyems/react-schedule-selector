@@ -1,5 +1,6 @@
 import * as React from 'react'
 import styled, {StyleSheetManager} from 'styled-components'
+//migrate to transient prop styled component
 import shouldForwardFn from './shouldForwardProp'
 
 // Import only the methods we need from date-fns in order to keep build size small
