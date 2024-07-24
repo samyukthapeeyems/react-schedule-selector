@@ -1,5 +1,6 @@
 import * as React from 'react'
-import styled from 'styled-components'
+import styled, {StyleSheetManager} from 'styled-components'
+import shouldForwardFn from './shouldForwardProp'
 
 // Import only the methods we need from date-fns in order to keep build size small
 import addMinutes from 'date-fns/add_minutes'
@@ -421,6 +422,8 @@ export default class ScheduleSelector extends React.Component<PropsType, StateTy
 
   render(): JSX.Element {
     return (
+      //@ts-ignore
+      <StyleSheetManager shouldForwardProp={shouldForwardFn}>
       <Wrapper>
         <Grid
           columns={this.state.dates.length}
@@ -434,6 +437,7 @@ export default class ScheduleSelector extends React.Component<PropsType, StateTy
           {this.renderFullDateGrid()}
         </Grid>
       </Wrapper>
+      </StyleSheetManager>
     )
   }
 }
